@@ -1,0 +1,438 @@
+{
+  "name": "ChatBot Atendimento",
+  "nodes": [
+    {
+      "parameters": {
+        "multipleMethods": true,
+        "httpMethod": [
+          "POST",
+          "DELETE",
+          "GET",
+          "HEAD",
+          "PATCH",
+          "PUT"
+        ],
+        "path": "57ddf665-20de-483c-bd7c-258890364422",
+        "responseMode": "responseNode",
+        "options": {
+          "allowedOrigins": "*",
+          "rawBody": false,
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              },
+              {
+                "name": "Access-Control-Allow-Methods",
+                "value": "POST, OPTIONS"
+              },
+              {
+                "name": "Access-Control-Allow-Headers",
+                "value": "Content-Type"
+              },
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -944,
+        -128
+      ],
+      "id": "a0383f4a-b46c-4f45-a988-05bfbea15a67",
+      "name": "Webhook",
+      "webhookId": "57ddf665-20de-483c-bd7c-258890364422"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.mensagemUsuario }}",
+        "options": {
+          "systemMessage": "=Você é Marina, assistente virtual da Hajar Imóveis.\n\nSeu tom deve ser sempre profissional, prestativo e acolhedor. Sua missão é guiar o cliente em sua jornada de busca, qualificando as necessidades (compra/aluguel, tipo, localização e orçamento) e facilitando o contato com um consultor humano ou o agendamento de visitas. Mantenha as respostas concisas, mas use a empatia para demonstrar que valoriza o tempo e o sonho do cliente. Sua prioridade máxima é agendar o próximo passo.\n\nVocê tem acesso à lista completa de imóveis disponíveis.\n\nIMÓVEIS DISPONÍVEIS:\n{{ $json.imoveisContext }}\n\nSua função:\n1. Analisar os imóveis disponíveis\n2. Fazer perguntas para entender o que o cliente busca\n3. Sugerir os imóveis mais adequados\n4. Sempre mencionar: título, localização, valor e código\n5. Ser amigável e usar emojis 🏠💰📍\n\nOrganize as informações de forma clara e atraente para o cliente.\n\nIMPORTANTE: Quando você coletar TODOS os dados de contato (nome e telefone e horário), adicione no FINAL da sua resposta a tag: [LEAD_COMPLETO]"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        -304,
+        -80
+      ],
+      "id": "d10d4cc6-bf77-45ae-b102-9f44d0da3245",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -304,
+        176
+      ],
+      "id": "e7d493d3-54cc-4f31-a00a-8c9f5ba034a1",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "MSFXfz4LdsMHyW9S",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "contextWindowLength": 20
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        -208,
+        176
+      ],
+      "id": "4e25f481-6c62-427c-a128-d04d4ac220e0",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "url": "https://admin.hajar.com.br/api/imoveis",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -736,
+        -80
+      ],
+      "id": "7507a91f-b09e-405f-a33a-45509536b3c2",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Pegar TODOS os items (são 7 imóveis separados)\nconst allItems = $input.all();\n\nconsole.log(`Total de imóveis: ${allItems.length}`);\n\n// Formatar dados dos imóveis\nlet texto = \"🏠 IMÓVEIS DISPONÍVEIS - HAJAR IMÓVEIS:\\n\\n\";\n\nfor (let i = 0; i < allItems.length; i++) {\n  const imovel = allItems[i].json;\n  \n  // Extrair informações\n  const tipo = imovel.tipo?.[0]?.tipo?.nome || 'Imóvel';\n  const finalidade = imovel.finalidade?.[0]?.finalidade?.nome || '';\n  \n  // Formatar valor\n  const valorStr = String(imovel.valor || '0').replace(/[^\\d]/g, '');\n  const valorNum = parseInt(valorStr);\n  const valorFormatado = valorNum.toLocaleString('pt-BR', {\n    style: 'currency',\n    currency: 'BRL',\n    minimumFractionDigits: 0,\n    maximumFractionDigits: 0\n  });\n  \n  // Montar descrição do imóvel\n  texto += `📍 ${i + 1}. ${imovel.titulo}\\n`;\n  texto += `   🏷️ ${tipo} - ${finalidade}\\n`;\n  texto += `   📍 ${imovel.cidade || 'Palmeira'}`;\n  if (imovel.bairro) texto += ` - ${imovel.bairro}`;\n  if (imovel.endereco) texto += ` - ${imovel.endereco}`;\n  texto += `\\n`;\n  texto += `   💰 ${valorFormatado}\\n`;\n  texto += `   🔢 Código: ${imovel.codigo}\\n`;\n  \n  // Adicionar URL (agora sabemos que existe!)\n  if (imovel.url) {\n    texto += `   🔗 Ver detalhes: ${imovel.url}\\n`;\n  }\n  \n  if (imovel.fotos && imovel.fotos.length > 0) {\n    texto += `   📸 ${imovel.fotos.length} foto(s)\\n`;\n  }\n  \n  texto += `\\n`;\n}\n\n// Pegar dados do webhook\nlet webhookData = null;\n\ntry {\n  webhookData = $('Webhook').first().json;\n  console.log('✅ Webhook data encontrado');\n} catch (e) {\n  console.log('⚠️ Erro ao acessar Webhook:', e.message);\n}\n\nif (!webhookData || !webhookData.message) {\n  try {\n    webhookData = $('Webhook').first().json.body;\n    console.log('✅ Webhook data encontrado no body');\n  } catch (e) {\n    console.log('⚠️ Erro ao acessar body:', e.message);\n  }\n}\n\n// Extrair mensagem e sessionId\nconst mensagemUsuario = webhookData?.message || \n                        webhookData?.body?.message || \n                        \"Olá\";\n\nconst sessionId = webhookData?.sessionId || \n                  webhookData?.body?.sessionId || \n                  \"session_default\";\n\nconsole.log('📝 Mensagem:', mensagemUsuario);\nconsole.log('🆔 SessionId:', sessionId);\nconsole.log('📏 Tamanho do texto:', texto.length, 'caracteres');\n\n// Retornar no formato correto\nreturn [{\n  json: {\n    mensagemUsuario: mensagemUsuario,\n    imoveisContext: texto,\n    sessionId: sessionId\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -528,
+        -80
+      ],
+      "id": "4cac284c-0eea-4564-b9fa-cfdd9c8a3282",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "={{ $json.output }}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              },
+              {
+                "name": "Access-Control-Allow-Methods",
+                "value": "POST, OPTIONS"
+              },
+              {
+                "name": "Access-Control-Allow-Headers",
+                "value": "Content-Type"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        1008,
+        -80
+      ],
+      "id": "eb550cb9-f65c-4a7d-9aa4-9e9be9dc5746",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "jsCode": "const aiResponse = $json.output || $json.message?.content || \"\";\nconst userMessage = $json.mensagemUsuario || \"\";\nconst sessionId = $json.sessionId || \"\";\n\n// Detectar se a IA marcou o lead como completo\nconst leadCompleto = aiResponse.includes('[LEAD_COMPLETO]');\n\nif (leadCompleto) {\n  console.log('📧 Lead completo detectado pela IA!');\n  \n  // Remover a tag da resposta\n  const respostaLimpa = aiResponse.replace('[LEAD_COMPLETO]', '').trim();\n  \n  return [{\n    json: {\n      output: respostaLimpa, // ✅ PASSA O OUTPUT!\n      sessionId: sessionId,\n      temContato: true,\n      dadosContato: {\n        mensagemCompleta: userMessage,\n        respostaCompleta: respostaLimpa, // ✅ ADICIONA AQUI TAMBÉM!\n        timestamp: new Date().toISOString(),\n        sessionId: sessionId\n      }\n    }\n  }];\n}\n\nreturn [{\n  json: {\n    output: aiResponse, // ✅ SEMPRE PASSA O OUTPUT!\n    sessionId: sessionId,\n    temContato: false\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        0,
+        -80
+      ],
+      "id": "de6d1960-8bcd-4748-a583-6b4b5df0ce55",
+      "name": "Code in JavaScript1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "ba9d49ba-2544-4049-8003-a48149017f4c",
+              "leftValue": "={{ $json.temContato }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        176,
+        -80
+      ],
+      "id": "7b2f8dcf-4645-4861-be3a-bf3cc0e28cee",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "fromEmail": "elielcezar.dev@gmail.com",
+        "toEmail": "elielcezar@gmail.com",
+        "subject": "🏠 Novo Lead - ChatBot Hajar Imóveis",
+        "html": "=<div style=\"font-family: Arial, sans-serif; max-width: 600px;\">\n  <h2 style=\"color: #10B981;\">🎉 Novo Lead Capturado!</h2>\n  \n  <div style=\"background: #f5f5f5; padding: 15px; margin: 20px 0; border-radius: 5px;\">\n    <p><strong>Session ID:</strong> {{ $json.sessionId }}</p>\n    <p><strong>Data/Hora:</strong> {{ $json.dadosContato.timestamp }}</p>\n  </div>\n  \n  <h3>💬 Última Mensagem do Cliente:</h3>\n  <div style=\"background: #fff; border-left: 4px solid #10B981; padding: 15px;\">\n    {{ $json.dadosContato.mensagemCompleta }}\n  </div>\n  \n  <h3>🤖 Resposta da IA:</h3>\n  <div style=\"background: #f0fdf4; border-left: 4px solid #22c55e; padding: 15px;\">\n    {{ $json.dadosContato.respostaCompleta }}\n  </div>\n  \n  <hr style=\"margin: 30px 0;\">\n  \n  <p style=\"color: #666; font-size: 12px;\">\n    ChatBot Hajar Imóveis - N8N\n  </p>\n</div>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        400,
+        -176
+      ],
+      "id": "5d61738c-8baa-4a1e-b944-775133e6a56f",
+      "name": "Send email",
+      "webhookId": "1c2db578-4d53-4836-8f44-14dac4843093",
+      "credentials": {
+        "smtp": {
+          "id": "Tui5I2aC2kGtnLo4",
+          "name": "SMTP account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        800,
+        -80
+      ],
+      "id": "fd20c899-254d-4868-adeb-f0153b2363d4",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Pegar o output do nó anterior (Code in JavaScript1)\nconst outputOriginal = $('Code in JavaScript1').first().json.output;\nconst dadosContato = $json.dadosContato || $('Code in JavaScript1').first().json.dadosContato;\nconst sessionId = $json.sessionId || $('Code in JavaScript1').first().json.sessionId;\n\nconsole.log('🔄 Passando output adiante após email:', outputOriginal?.substring(0, 50));\n\n// Garantir que o output seja passado adiante\nreturn [{\n  json: {\n    output: outputOriginal,\n    sessionId: sessionId,\n    dadosContato: dadosContato,\n    emailEnviado: true\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        576,
+        -176
+      ],
+      "id": "1efd8b7d-d550-41db-ae9a-2be28bf92974",
+      "name": "Code in JavaScript2"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Send email",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Respond to Webhook": {
+      "main": [
+        []
+      ]
+    },
+    "Send email": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript2": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "e406e014-7955-47e5-9657-27171f42dd68",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "55110b778948b706095654571ea1560fc31d8aad607c2efb5268271243268daf"
+  },
+  "id": "eQaKQlsQqYEvi1Cu",
+  "tags": []
+}

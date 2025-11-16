@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exemplo de Integração - ChatBot Widget</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .content {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+        }
+        p {
+            color: #666;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <h1>Exemplo de Site com ChatBot</h1>
+        <p>
+            Esta é uma página de exemplo mostrando como o widget de chat 
+            pode ser integrado em qualquer site HTML.
+        </p>
+        <p>
+            O widget aparecerá flutuando no canto inferior direito da tela.
+            Clique nele para iniciar uma conversa!
+        </p>
+        <p>
+            <strong>Este exemplo funciona apenas após o build.</strong>
+        </p>
+        <p>
+            Para testar em desenvolvimento, use: <code>npm run dev</code>
+        </p>
+    </div>
+
+    <!-- 
+        ============================================
+        INTEGRAÇÃO DO CHATBOT
+        ============================================
+        
+        Passo 1: Incluir o script do chatbot
+        Substitua o caminho pelo local onde você hospedou o arquivo
+    -->
+    <script src="./dist/chatbot.iife.js"></script>
+    
+    <!-- 
+        Passo 2: Inicializar o chatbot com suas configurações
+        Substitua a webhookUrl pela URL real do seu webhook n8n
+    -->
+    <script>
+        // Aguardar o DOM carregar
+        window.addEventListener('DOMContentLoaded', function() {
+            // Inicializar o chatbot
+            ChatBot.init({
+                // URL do webhook n8n (OBRIGATÓRIO)
+                webhookUrl: 'https://seu-n8n.app.n8n.cloud/webhook/chat',
+                
+                // Configurações opcionais
+                title: 'Atendimento',
+                welcomeMessage: 'Olá! Bem-vindo ao nosso site. Como posso ajudá-lo?',
+                placeholder: 'Digite sua mensagem aqui...',
+                primaryColor: '#3B82F6',
+                position: 'bottom-right',
+                zIndex: 9999
+            });
+            
+            console.log('ChatBot inicializado com sucesso!');
+        });
+    </script>
+
+    <!-- 
+        OPCIONAL: Controlar o chatbot programaticamente
+    -->
+    <script>
+        // Exemplo: Abrir o chat automaticamente após 5 segundos
+        // setTimeout(function() {
+        //     ChatBot.open();
+        // }, 5000);
+        
+        // Exemplo: Abrir chat ao clicar em um botão
+        // document.getElementById('meu-botao').addEventListener('click', function() {
+        //     ChatBot.open();
+        // });
+    </script>
+</body>
+</html>
+

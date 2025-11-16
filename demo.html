@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo - ChatBot N8N Widget</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 3rem;
+            padding: 2rem 0;
+        }
+        
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        
+        .header p {
+            font-size: 1.25rem;
+            opacity: 0.9;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 1rem;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        .card h2 {
+            color: #667eea;
+            margin-bottom: 1rem;
+            font-size: 1.75rem;
+        }
+        
+        .card h3 {
+            color: #333;
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+            font-size: 1.25rem;
+        }
+        
+        .card p {
+            margin-bottom: 1rem;
+            color: #666;
+        }
+        
+        .code-block {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            margin: 1rem 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+        
+        .warning {
+            background: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 0.25rem;
+        }
+        
+        .success {
+            background: #d1fae5;
+            border-left: 4px solid #10b981;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 0.25rem;
+        }
+        
+        .feature-list {
+            list-style: none;
+            margin: 1rem 0;
+        }
+        
+        .feature-list li {
+            padding: 0.5rem 0;
+            padding-left: 2rem;
+            position: relative;
+        }
+        
+        .feature-list li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #10b981;
+            font-weight: bold;
+            font-size: 1.25rem;
+        }
+        
+        .button {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            text-decoration: none;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        
+        .button:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💬 ChatBot N8N Widget</h1>
+            <p>Widget de chat universal que funciona em qualquer site</p>
+        </div>
+        
+        <div class="card">
+            <h2>🎯 Sobre este Widget</h2>
+            <p>
+                Este é um widget de chat standalone que se conecta ao n8n via webhook.
+                Ele pode ser integrado em qualquer site (HTML, PHP, WordPress, Next.js, etc.) 
+                através de uma simples tag <code>&lt;script&gt;</code>.
+            </p>
+            
+            <ul class="feature-list">
+                <li>Funciona em qualquer site</li>
+                <li>Integração via script tag</li>
+                <li>Sem conflitos de CSS (prefixo cb-)</li>
+                <li>Totalmente configurável</li>
+                <li>Responsivo e acessível</li>
+                <li>Histórico de sessão</li>
+                <li>Loading states e tratamento de erros</li>
+            </ul>
+        </div>
+        
+        <div class="card">
+            <h2>📦 Como Usar</h2>
+            
+            <div class="warning">
+                <strong>⚠️ Atenção:</strong> Esta é uma página de demonstração. 
+                Para usar em produção, você precisa fazer o build do projeto primeiro.
+            </div>
+            
+            <h3>1. Build do Projeto</h3>
+            <div class="code-block">npm run build</div>
+            <p>Isso vai gerar o arquivo <code>dist/chatbot.iife.js</code></p>
+            
+            <h3>2. Hospedar o Arquivo</h3>
+            <p>Faça upload do arquivo gerado para seu servidor ou CDN.</p>
+            
+            <h3>3. Integração Básica</h3>
+            <div class="code-block">&lt;!-- Incluir o script --&gt;
+&lt;script src="https://seu-dominio.com/chatbot.iife.js"&gt;&lt;/script&gt;
+
+&lt;!-- Inicializar o widget --&gt;
+&lt;script&gt;
+  ChatBot.init({
+    webhookUrl: 'https://seu-n8n.com/webhook/chat'
+  });
+&lt;/script&gt;</div>
+            
+            <h3>4. Integração Avançada</h3>
+            <div class="code-block">&lt;script&gt;
+  ChatBot.init({
+    webhookUrl: 'https://seu-n8n.com/webhook/chat',
+    title: 'Atendimento Imobiliária',
+    welcomeMessage: 'Olá! Como posso ajudar?',
+    placeholder: 'Digite sua mensagem...',
+    primaryColor: '#10B981',
+    position: 'bottom-right',
+    zIndex: 9999
+  });
+&lt;/script&gt;</div>
+        </div>
+        
+        <div class="card">
+            <h2>⚙️ Configurações</h2>
+            
+            <p><strong>webhookUrl</strong> (obrigatório): URL do webhook do n8n</p>
+            <p><strong>title</strong> (opcional): Título do chat (padrão: "Atendimento")</p>
+            <p><strong>welcomeMessage</strong> (opcional): Mensagem inicial do bot</p>
+            <p><strong>placeholder</strong> (opcional): Placeholder do campo de mensagem</p>
+            <p><strong>primaryColor</strong> (opcional): Cor primária em hex (padrão: "#3B82F6")</p>
+            <p><strong>position</strong> (opcional): "bottom-right" ou "bottom-left" (padrão: "bottom-right")</p>
+            <p><strong>zIndex</strong> (opcional): z-index do widget (padrão: 1000)</p>
+        </div>
+        
+        <div class="card">
+            <h2>🔌 API Programática</h2>
+            <p>Você pode controlar o widget via JavaScript:</p>
+            
+            <div class="code-block">// Abrir o chat
+ChatBot.open();
+
+// Fechar o chat
+ChatBot.close();
+
+// Destruir o widget
+ChatBot.destroy();</div>
+            
+            <div style="margin-top: 1.5rem;">
+                <button class="button" onclick="testAPI('open')">Abrir Chat</button>
+                <button class="button" onclick="testAPI('close')" style="background: #ef4444; margin-left: 0.5rem;">Fechar Chat</button>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>📋 Formato do Webhook N8N</h2>
+            
+            <h3>Requisição enviada ao n8n:</h3>
+            <div class="code-block">{
+  "message": "Olá, preciso de ajuda",
+  "sessionId": "session_1234567890_abc123",
+  "timestamp": 1234567890123
+}</div>
+            
+            <h3>Resposta esperada do n8n:</h3>
+            <div class="code-block">{
+  "message": "Olá! Como posso ajudar você?"
+}</div>
+            
+            <p style="margin-top: 1rem;">
+                O widget aceita <code>message</code>, <code>response</code> ou <code>text</code> 
+                como campo de resposta.
+            </p>
+        </div>
+        
+        <div class="card">
+            <h2>🚀 Próximos Passos</h2>
+            
+            <div class="success">
+                <strong>✓ Widget pronto!</strong> Clique no botão flutuante no canto da tela para testar.
+            </div>
+            
+            <p>Para usar em produção:</p>
+            <ol style="margin-left: 2rem; margin-top: 1rem;">
+                <li>Configure seu webhook no n8n</li>
+                <li>Faça o build: <code>npm run build</code></li>
+                <li>Hospede o arquivo gerado</li>
+                <li>Integre no seu site</li>
+            </ol>
+        </div>
+    </div>
+    
+    <!-- Em modo DEV, carregar o widget via Vite -->
+    <script>
+        // Funções de teste da API
+        function testAPI(action) {
+            if (typeof ChatBot === 'undefined') {
+                alert('O widget ainda não foi carregado. Por favor, rode o projeto em modo dev primeiro.');
+                return;
+            }
+            
+            if (action === 'open') {
+                ChatBot.open();
+            } else if (action === 'close') {
+                ChatBot.close();
+            }
+        }
+        
+        // Mensagem de instrução
+        console.log('%c💬 ChatBot Widget Demo', 'font-size: 20px; color: #667eea; font-weight: bold;');
+        console.log('%cPara testar o widget:', 'font-size: 14px;');
+        console.log('%c1. Execute: npm run dev', 'font-size: 12px; color: #666;');
+        console.log('%c2. O widget aparecerá flutuando no canto direito', 'font-size: 12px; color: #666;');
+    </script>
+</body>
+</html>
+

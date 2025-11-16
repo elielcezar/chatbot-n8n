@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ChatBot Widget - Demo</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+    
+    <!-- Exemplo de como o widget será usado em produção -->
+    <div style="padding: 2rem; max-width: 800px; margin: 0 auto;">
+      <h1 style="font-size: 2rem; font-weight: bold; margin-bottom: 1rem;">Demo do Widget de Chat</h1>
+      <p style="margin-bottom: 1rem;">
+        Este é um exemplo de página que hospeda o widget de chat.
+        O widget aparecerá flutuando no canto inferior direito.
+      </p>
+      <div style="background: #f3f4f6; padding: 1rem; border-radius: 0.5rem; margin-bottom: 1rem;">
+        <h2 style="font-weight: bold; margin-bottom: 0.5rem;">Como usar em produção:</h2>
+        <pre style="background: #1f2937; color: #f9fafb; padding: 1rem; border-radius: 0.375rem; overflow-x: auto;"><code>&lt;script src="https://seu-dominio.com/chatbot.js"&gt;&lt;/script&gt;
+&lt;script&gt;
+  ChatBot.init({
+    webhookUrl: 'https://seu-n8n.com/webhook/chat',
+    title: 'Atendimento',
+    welcomeMessage: 'Olá! Como posso ajudar?',
+    primaryColor: '#3B82F6'
+  });
+&lt;/script&gt;</code></pre>
+      </div>
+      
+      <p style="color: #6b7280;">
+        <strong>Nota:</strong> Em modo de desenvolvimento, o widget é renderizado diretamente no React.
+        Após o build, ele funcionará como um script standalone que pode ser incluído em qualquer site.
+      </p>
+    </div>
+  </body>
+</html>
+
